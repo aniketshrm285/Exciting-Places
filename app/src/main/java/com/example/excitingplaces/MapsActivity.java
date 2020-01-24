@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -70,6 +72,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
     }
 
     @Override
@@ -77,6 +81,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         Intent intent = getIntent();
+
+        final SharedPreferences sharedPreferences = this.getSharedPreferences("com.example.excitingplaces",Context.MODE_PRIVATE);
 
         if(intent.getIntExtra("position",0)==0){
 
@@ -154,10 +160,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 MainActivity.arrayAdapter.notifyDataSetChanged();
 
+
+
+                try{
+
+                    ArrayList<String> longitudes = new ArrayList<String>();
+                    ArrayList<String> lattitudes= new ArrayList<String>();
+
+                    for(int i=0 ; i < MainActivity.locations.size(); i++){
+                        lattitudes.add(String.valueOf(MainActivity.locations.get(i).latitude));
+                        longitudes.add(String.valueOf(MainActivity.locations.get(i).longitude));
+                    }
+                    sharedPreferences.edit().putString("places",ObjectSerializer.serialize(MainActivity.places)).apply();
+                    sharedPreferences.edit().putString("lat",ObjectSerializer.serialize(lattitudes)).apply();
+                    sharedPreferences.edit().putString("lon",ObjectSerializer.serialize(longitudes)).apply();
+                    Log.i("SharedPref","Success");
+                }catch (Exception e){
+                    e.printStackTrace();
+                    Log.i("SharedPref","Failed");
+                }
+
+
+
+
+
             }
         });
-
-
 
 
     }
